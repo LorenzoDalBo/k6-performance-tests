@@ -1,0 +1,34 @@
+name: K6 Performance Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  performance-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install K6
+      run: |
+        sudo apt update
+        sudo apt install -y k6
+
+    - name: Run K6 Performance Test
+      run: |
+        mkdir -p src/output
+        k6 run --out json=src/output/output.json src/tests/JSONPlaceholder.spec.js
+
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: k6-results
+        path: src/output/output.json
